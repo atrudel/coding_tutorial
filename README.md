@@ -1,4 +1,11 @@
-# Coding Tips for Researchers
+# Coding Tips for Cognitive Researchers
+
+### Amric Trudel  
+> Laboratoire de Neurosciences Cognitives Computationnelles  
+> École Normale supérieure  
+> Paris
+
+![Comic strip on code quality](assets/comic_strip.png)
 
 ## Why using good coding practices?
 - Code for your future self (in 2+ months)
@@ -33,7 +40,7 @@ def update_rescorla_wagner_model(reward):
 ```
 Note: Updating variables outside the function is not recommended, but we will see later how to use object-oriented programming to make it cleaner.
 
-### b) Encapsulation
+### b) Designing good functions
 - Computing steps can be encapsulated into clearly named functions to make it understandable.
 - Code that can be read like prose is preferable to comments (can you guess why?)
 ```python
@@ -43,6 +50,12 @@ def psychophysical_kernel(actions: np.ndarray, rewards: np.ndarray) ->None:
     coefficients, stderror = fit_logistic_regression(features, targets)
     plot_psychophysical_kernel(coefficients, stderrors)
 ```
+- Ideally, your functions should:
+  - Be small
+  - Do one and ONLY ONE thing
+  - Do exactly what their name indicates
+  - Have no side effects
+  
 Each of the subfunctions called in `psychophysical_kernel` can then be defined individually.
 ### c) Type hinting
 Although python is not a strongly typed language, unlike C or java, we can use type hinting in order to allow our IDE to highlight our errors.
@@ -67,6 +80,37 @@ from typing import Dict, List, Tuple
 parameters: Dict[str, float] = {'learning_rate': 0.7, 'temperature': 0.9}
 trials: List[Tuple[int, float]] = [(0, 0.5), (1, 0.2), (0, 0.6)]  # Trials as tuples (action, reward)
 ```
+
+### d) Code design
+- Keep configurability at high levels  
+  **config.py**
+  ```python
+  DATA_DIR = 'data/'
+  BATCH_SIZE = 1000
+  MAX_REWARD = 100
+  N_TRIALS = 80
+  ```
+- Magic numbers should be named constants (typically in bold characters)
+- Be consistent across your code base
+- Don't hesitate to create classes for data formats that are outputted by your functions
+  ```python
+  class Trajectory:
+    def __init__(self,
+                 actions: np.ndarray,
+                 rewards: np.ndarray,
+                 description: Optional[str] = None
+                 ):
+        self.actions = actions
+        self.rewards = rewards
+        self.description: Optional[str] = description
+
+    def __str__(self) -> str:
+        return self.description
+
+    def __len__(self) -> int:
+        return self.actions.shape[1]
+  ```
+- Remove code instead of commenting it out and use **git** to find it back if you need it again.
 
 ## 2- Object-Oriented Programming
 
@@ -108,9 +152,17 @@ In this example, we wrote a class for the Rescorla-Wagner model for a binary act
 
 ## 3 - Unit tests
 
-## 4 - Using your code in Notebooks
+A unit test verifies that a function has the desired behavior given a set of inputs. Developers write extensive unit tests
+for their apps before they are deployed in production. In research, it might not be necessary to be as rigorous with the test coverage,
+but unit tests can be useful to test critical calculations to make sure they do what is intended.
+
+
+## 4- Packaging your code
 - Structure your code
+- Write your dependencies in `requirements.txt`
 - Package your code as a library (`setup.py`)
+
+## 4 - Using your code in Notebooks
 - `pip install -e .`
 - Add magic commands to enable package auto-reload in the notebook:
     ```python
@@ -121,8 +173,32 @@ In this example, we wrote a class for the Rescorla-Wagner model for a binary act
 ## 5- Versioning with Git
 ### Basic commands
 
+Saving your code changes to git is a three-step process
+- Add the files that contain changes you want to register:  
+`git add <files_to_add>`  
+- Commit your changes to a snapshot of your code that you might eventually return to:  
+`git commit -m "<your commit message>`  
+- Push your code to github.com (optional):  
+`git push`
+
+Other commands:
+- See the state of your uncommited changes:  
+`git status`
+- Create a branch:  
+`git checkout -b <name_of_your_new_branch>`
+- Change branches:
+`git checkout <name_of_the_branch>`
+- Create a tag:
+`git tag <name_of_the_tag>`
+- Go to a tag:
+`git checkout <name_of_the_tag`
+
+
 ### Tips
 - Create a `.gitignore` file
+- You can create aliases: 
+`git config --global alias.hist log --all --decorate --oneline --graph`  
+The following is useful to visualize the history of your commits, by typing `git hist`  
 
 ### Useful patterns
 - Structure your work
@@ -133,6 +209,9 @@ In this example, we wrote a class for the Rescorla-Wagner model for a binary act
   - Mainly if you work with other people
   - Can be useful if you are trying something out. !! But merge it quickly !!
   - Branches are not meant to contain alternative versions of your code. They are meant to facilitate concurrent development of different features without interference. But the purpose is to have a main branch onto which all evolutions are merged.
+
+### More resources
+- https://gitimmersion.com
 
 ## 6- Experiments
 - Experiment running script
