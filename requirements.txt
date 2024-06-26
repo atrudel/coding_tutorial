@@ -2,3 +2,5 @@ jupyter
 numpy
 rise
 pytest
+torch
+matplotlib
