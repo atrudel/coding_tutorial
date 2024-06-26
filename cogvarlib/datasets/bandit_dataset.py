@@ -13,8 +13,8 @@ class BanditDataset(Dataset):
         self.values: np.ndarray = values.astype('float32')
 
     @classmethod
-    def load(cls, filename: str, directory: str = 'data') -> BanditDataset:
-        data = np.load(Path(directory) / filename)
+    def load(cls, filename: str) -> BanditDataset:
+        data = np.load(filename)
         means = data[:, :, :, 0].astype('float32')
         values = data[:, :, :, 1].astype('float32')
         return cls(means, values)

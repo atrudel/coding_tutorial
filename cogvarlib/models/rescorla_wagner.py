@@ -1,6 +1,7 @@
 import numpy as np
 from typing import Tuple
 
+from cogvarlib.datasets.bandit_dataset import BanditDataset
 
 BASELINE = 0.5
 
